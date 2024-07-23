@@ -1,0 +1,106 @@
+<!-- result.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado da Query</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        .icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+        .response-container {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .form-container {
+            margin-top: 20px;
+        }
+        form {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="C:\Users\Rafael\Documents\IA-Chat-PDF\my_project\ia_chat_pdf\static\compliasset.jpeg" alt="Compliasset" class="icon">
+        <h1>Resultado da Query</h1>
+        <div id="response-container" class="response-container">
+            <!-- Aqui será exibida a resposta -->
+        </div>
+        <div class="form-container">
+            <form id="query-form" method="post" action="{% url 'home' %}">
+                {% csrf_token %}
+                <input type="text" name="query_text" placeholder="Digite sua pergunta aqui">
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            // Função para enviar a pergunta ao servidor e receber a resposta
+            $('#query-form').submit(function(event) {
+                event.preventDefault(); // Previne o envio padrão do formulário
+                var formData = $(this).serialize(); // Obtém os dados do formulário
+                $.ajax({
+                    type: $(this).attr('method'), // Método do formulário (POST)
+                    url: $(this).attr('action'), // URL de destino (a view no Django)
+                    data: formData, // Dados do formulário serializados
+                    success: function(response) {
+                        $('#response-container').html(response); // Atualiza o conteúdo do response-container com a resposta
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText); // Log de erro, se necessário
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

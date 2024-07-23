@@ -1,0 +1,135 @@
+<!-- ia_chat_pdf/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA Compliasset</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+        }
+        .icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            width: 100%;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .response-container {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        function responseValidate(val) {
+            var val_text = $("#query_text_id").val()
+            if (val == "sim"){
+                window.location.href = '/'
+            }
+            var correctResponseForm = `
+                <p>Digite a resposta correta:</p>
+                <form  method="post" action="/">
+                    {% csrf_token %}
+                    <input type="hidden" name="query_text" value="${val_text}">
+                    <input type="text" name="correct_response" />
+                    <button type="submit">Enviar</button>
+                </form>
+            `;
+            $('#response-container').append(correctResponseForm);
+        }
+
+        $(document).ready(function() {
+            $('form').submit(function(event) {
+                event.preventDefault(); // Previne o envio padrão do formulário
+                var formData = $(this).serialize(); // Obtém os dados do formulário
+
+                $.ajax({
+                    type: $(this).attr('method'), // Método do formulário (POST)
+                    url: $(this).attr('action'), // URL de destino (a view no Django)
+                    data: formData, // Dados do formulário serializados
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function(response) {
+                        console.log(response); // Exibe a resposta no console da web
+                        $('#response-container').html(`
+                            <h2>Pergunta:</h2>
+                            <p>${response.query_text}</p>
+                            <h2>Resposta:</h2>
+                            <p>${response.response_text}</p>
+                            <p>Sua resposta está correta?</p>
+                            <button type="button" onClick="responseValidate('sim')">Sim</button>
+                            <button type="button" onClick="responseValidate('nao')">Não</button>
+                        `);
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.log(xhr.status + ": " + xhr.responseText); // Log de erro, se necessário
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <img src="../static/compliasset.jpeg" alt="Compliasset" class="icon">
+        <h1>Compl-IA-sset</h1>
+        <div class="form-container">
+            <form method="post" action="{% url 'home' %}">
+                {% csrf_token %}
+                <input type="text" id="query_text_id" name="query_text" placeholder="Digite sua pergunta aqui">
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+        <div id="response-container" class="response-container">
+            <!-- Aqui será exibida a resposta -->
+        </div>
+    </div>
+</body>
+</html>
